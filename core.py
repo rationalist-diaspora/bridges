@@ -16,7 +16,6 @@ class SpQuery():
     async def run(self,pollTime=0.5):
         while True:
             while self.pipe.poll():
-                print("reading from pipe")
                 yield self.pipe.recv()
             await asyncio.sleep(pollTime)
 
@@ -34,7 +33,7 @@ class cache(dict):
         if key not in self:
             data = self.query.get_all(key, index=self.key).run(conn)
         self.atime[key]=arrow.utcnow()
-        return super()__getitem__(key)
+        return super().__getitem__(key)
 
     def connect(self,*args,**kwargs):
         self.connArgs=args
@@ -44,7 +43,7 @@ class cache(dict):
         self.task = loop.create_task(self._watch())
         return self
 
-    def _watch(self):
+    async def _watch(self):
         events = SpQuery(self.query,*self.connArgs, **self.connKwargs).run()
         async for event in events:
             if getattr(event, self.key, None) in event:
